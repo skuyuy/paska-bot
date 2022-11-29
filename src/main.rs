@@ -7,15 +7,24 @@ use serenity::{
     framework::standard::{
         macros::{command, group},
         StandardFramework,
-        CommandResult, Command
-    }
+        CommandResult
+    },
 };
 
+mod commands;
+use crate::commands::{help::*};
+
 #[group]
-#[command(ping)]
+#[commands(help)]
 struct General;
 struct Handler;
 
+#[async_trait]
+impl EventHandler for Handler {
+
+}
+
+#[tokio::main]
 async fn main() {
     let framework = StandardFramework::new()
         .configure(|c| c.prefix("~"))
