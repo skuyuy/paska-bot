@@ -1,5 +1,6 @@
 use std::env;
 
+use data::release::Release;
 use serenity::{
     async_trait,
     prelude::*,
@@ -12,7 +13,14 @@ use serenity::{
 };
 
 mod commands;
-use crate::commands::{help::*};
+mod data;
+
+use crate::{
+    commands::{
+        help::*
+    },
+    data::ReleaseStore
+};
 
 #[group]
 #[commands(help)]
@@ -26,6 +34,11 @@ impl EventHandler for Handler {
 
 #[tokio::main]
 async fn main() {
+    let mut releases = ReleaseStore::new();
+    if let Err(err) = releases.read("store.json") {
+        panic!("Could not read releases: {}", err)
+    }
+
     let framework = StandardFramework::new()
         .configure(|c| c.prefix("~"))
         .group(&GENERAL_GROUP);
@@ -41,10 +54,4 @@ async fn main() {
     if let Err(err) = client.start().await {
         println!("An error occurred while running the client: {:?}", err);
     }
-}
-
-#[command]
-async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
-    msg.reply(ctx, "Pong!").await?;
-    Ok(())
 }
